@@ -4,18 +4,22 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.close_all.project.data.App
 import org.close_all.project.data.AppInstance
+import java.util.Optional
 import java.util.stream.Collectors
 import kotlin.time.Duration
 
 class DesktopAppManager : AppManager {
+
+    private val APPS_PATH = "Applications"
+
     override fun getRunningApps(): List<App> {
 
         val appsMap = ProcessHandle.allProcesses().filter { pr ->
-            pr.info().command().orElse("Unknown").startsWith("/Applications/")
+            pr.info().command().orElse("Unknown").contains("/${APPS_PATH}/")
         }.filter { pr ->
             pr.parent().get().pid() == 1L
         }.map { pr ->
-            val name = pr.info().command().orElse("/test/").split('/')[2]
+            val name = getAppName(pr.info().command())
             val startInstance = Instant.fromEpochMilliseconds(
                 pr.info().startInstant().orElse(
                     java.time.Instant.now()
@@ -49,6 +53,32 @@ class DesktopAppManager : AppManager {
                 )
             }
         return appsMap
+    }
+
+    override fun closeApp(app: App) {
+        app.processInstances.forEach { ins ->
+            val insProcessHandleOpt = ProcessHandle.of(ins.pid)
+            if (insProcessHandleOpt.isPresent) {
+                val insProcessHandle = insProcessHandleOpt.get()
+                insProcessHandle.destroyForcibly()
+                println(insProcessHandle.supportsNormalTermination())
+            }
+        }
+    }
+
+    private fun getAppName(cmd: Optional<String>): String {
+        // the name of the app came directly after the /Applications
+        // ex /System/Applications/Mail.app/Contents/MacOS/Mail ,/Applications/Zed.app/Contents/MacOS/zed,
+        try {
+            val pathItems = cmd.orElse("/non/").split('/')
+
+            val appsInd = pathItems.indexOf(APPS_PATH)
+            return pathItems.get(index = appsInd + 1).split('.').get(0)
+
+        } catch (e: Exception) {
+            return ""
+        }
+
     }
 
 }

@@ -4,6 +4,7 @@ import org.close_all.project.data.App
 
 interface AppManager {
     fun getRunningApps(): List<App>
+    fun closeApp(app: App)
 }
 
 
