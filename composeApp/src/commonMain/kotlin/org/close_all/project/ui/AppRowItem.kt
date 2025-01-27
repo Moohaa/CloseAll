@@ -53,7 +53,7 @@ fun appRowItem(
 
         // 4. ButtonB
         IconButton(
-            onClick = {},
+            onClick = shutDownClicked,
         ) {
             Icon(
                 imageVector = Cancel,

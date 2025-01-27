@@ -12,7 +12,9 @@ class DesktopAppManager : AppManager {
 
     private val APPS_PATH = "Applications"
 
-    override fun getRunningApps(): List<App> {
+    override fun getRunningApps(
+        onExit: (apps: List<App>) -> Unit
+    ) {
 
         val appsMap = ProcessHandle.allProcesses().filter { pr ->
             pr.info().command().orElse("Unknown").contains("/${APPS_PATH}/")
@@ -52,10 +54,10 @@ class DesktopAppManager : AppManager {
                     totalCpuDurations = Duration.ZERO
                 )
             }
-        return appsMap
+        onExit(appsMap)
     }
 
-    override fun closeApp(app: App) {
+    override fun closeApp(app: App, onExit: () -> Unit) {
         app.processInstances.forEach { ins ->
             val insProcessHandleOpt = ProcessHandle.of(ins.pid)
             if (insProcessHandleOpt.isPresent) {
@@ -64,6 +66,7 @@ class DesktopAppManager : AppManager {
                 println(insProcessHandle.supportsNormalTermination())
             }
         }
+        onExit()
     }
 
     private fun getAppName(cmd: Optional<String>): String {
