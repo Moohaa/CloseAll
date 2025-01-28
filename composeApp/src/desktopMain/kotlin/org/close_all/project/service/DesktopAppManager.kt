@@ -15,7 +15,6 @@ class DesktopAppManager : AppManager {
     override fun getRunningApps(
         onExit: (apps: List<App>) -> Unit
     ) {
-
         val appsMap = ProcessHandle.allProcesses().filter { pr ->
             pr.info().command().orElse("Unknown").contains("/${APPS_PATH}/")
         }.filter { pr ->
@@ -62,8 +61,16 @@ class DesktopAppManager : AppManager {
             val insProcessHandleOpt = ProcessHandle.of(ins.pid)
             if (insProcessHandleOpt.isPresent) {
                 val insProcessHandle = insProcessHandleOpt.get()
-                insProcessHandle.destroyForcibly()
-                println(insProcessHandle.supportsNormalTermination())
+                val destroyed = insProcessHandle.destroy()
+                println(destroyed)
+            }
+        }
+        onExit()
+    }
+
+    override fun closeApps(apps: List<App>, onExit: () -> Unit) {
+        apps.forEach { app ->
+            closeApp(app) {
             }
         }
         onExit()

@@ -9,10 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,30 +25,25 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App(
     appManager: AppManager
 ) {
+    val appState = AppState(appManager)
+
     MaterialTheme {
-
-        val appState = AppState(appManager)
-
         val apps = appState.apps.collectAsState()
         val loading = appState.loading.collectAsState()
-
-        var allCheckBoxClicked by remember { mutableStateOf(false) }
-
+        val allCheck = appState.allCheck.collectAsState()
 
         Column(
             Modifier.fillMaxWidth().padding(5.dp),
         ) {
-
             ControlHeader(
-                onCheckboxChange = { isChecked ->
-                    // Handle checkbox state change
-                    println("Checkbox is checked: $isChecked")
-                    allCheckBoxClicked = isChecked
+                checked = allCheck.value,
+                onCheckboxChange = {
+                    appState.appAllCheckBoxChange()
                 },
                 shutDownClicked = {
+                    appState.closeCheckedApps()
                 },
                 loadClicked = {
-                    println("load clicked")
                     appState.reload()
                 }
             )
@@ -61,18 +52,13 @@ fun App(
                 items(apps.value) { app ->
                     appRowItem(
                         app = app,
-                        onCheckboxChange = { isChecked ->
-                            // Handle checkbox state change
-                            println("Checkbox is checked: $isChecked")
+                        onCheckboxChange = {
+                            appState.appCheckBoxChange(app.name)
                         },
                         shutDownClicked = {
-                            // Handle button click
-                            println("shut down ${app.name}")
                             appState.closeApp(app)
                         },
                         onOptionsClick = {
-                            // Handle options icon click
-                            println("Options icon clicked")
                         }
                     )
                     Divider()
@@ -82,12 +68,15 @@ fun App(
     }
 }
 
-class AppState(val appManager: AppManager) {
+class AppState(private val appManager: AppManager) {
     private val _apps = MutableStateFlow(emptyList<App>())
     val apps = _apps.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
+
+    private var _allCheck: MutableStateFlow<Boolean?> = MutableStateFlow(false)
+    val allCheck = _allCheck.asStateFlow()
 
 
     init {
@@ -98,9 +87,45 @@ class AppState(val appManager: AppManager) {
         }
     }
 
+    fun appCheckBoxChange(name: String) {
+        var checkedCount = 0
+
+        this._apps.value =
+            this.apps.value.map {
+                var targetApp = it
+                if (it.name == name) {
+                    targetApp = it.copy(checked = !it.checked)
+                }
+                if (targetApp.checked) checkedCount++
+                targetApp
+            }
+        if (checkedCount < 2) this._allCheck.value = false
+        if (checkedCount >= 2) this._allCheck.value = null
+    }
+
+    fun appAllCheckBoxChange() {
+        this._allCheck.value = if (this._allCheck.value != null) !this._allCheck.value!! else false
+        this._apps.value =
+            this.apps.value.map {
+                it.copy(checked = this._allCheck.value!!)
+            }
+    }
+
+    fun closeCheckedApps() {
+        _loading.value = true
+        val appToClose = this.apps.value.filter {
+            it.checked
+        }
+        appManager.closeApps(appToClose) {
+            reload()
+            this._allCheck.value = false
+            _loading.value = false
+        }
+    }
+
+
     fun closeApp(app: App) {
         appManager.closeApp(app) {
-            println("closed successfully")
             reload()
         }
     }
@@ -110,7 +135,6 @@ class AppState(val appManager: AppManager) {
         appManager.getRunningApps {
             _loading.value = false
             _apps.value = it
-            it.forEach { el -> println(el.name) }
         }
     }
 

@@ -5,6 +5,7 @@ import org.close_all.project.data.App
 interface AppManager {
     fun getRunningApps(onExit: (apps: List<App>) -> Unit)
     fun closeApp(app: App, onExit: () -> Unit)
+    fun closeApps(apps: List<App>, onExit: () -> Unit)
 }
 
 

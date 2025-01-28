@@ -10,8 +10,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,25 +20,20 @@ import org.close_all.project.ui.vectors.Cancel
 @Composable
 fun appRowItem(
     app: App,
-    onCheckboxChange: (Boolean) -> Unit,
+    onCheckboxChange: () -> Unit,
     shutDownClicked: () -> Unit,
     onOptionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // State for the checkbox
-    val isChecked = remember { mutableStateOf(false) }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // 1. Checkbox
         Checkbox(
-            checked = isChecked.value,
+            checked = app.checked,
             modifier = Modifier.size(20.dp),
             onCheckedChange = {
-                isChecked.value = it
-                onCheckboxChange(it)
+                onCheckboxChange()
             }
         )
 
@@ -51,7 +44,6 @@ fun appRowItem(
                 .padding(end = 40.dp)
         )
 
-        // 4. ButtonB
         IconButton(
             onClick = shutDownClicked,
         ) {
