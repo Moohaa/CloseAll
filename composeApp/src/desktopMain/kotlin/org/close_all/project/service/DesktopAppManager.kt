@@ -1,6 +1,5 @@
 package org.close_all.project.service
 
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.close_all.project.data.App
 import org.close_all.project.data.AppInstance
@@ -24,11 +23,12 @@ class DesktopAppManager : AppManager {
             val startInstance = Instant.fromEpochMilliseconds(
                 pr.info().startInstant().orElse(
                     java.time.Instant.now()
-                ).epochSecond
+                ).toEpochMilli()
             )
+
             val totalCpuDuration = Duration.parseIsoString(
                 pr.info().totalCpuDuration().orElse(
-                    java.time.Duration.ZERO
+                    java.time.Duration.ofSeconds(1)
                 ).toString()
             )
             AppInstance(
@@ -36,15 +36,22 @@ class DesktopAppManager : AppManager {
                 pr.pid(),
                 pr.info().command().orElse("NA"),
                 startInstance,
-                totalCpuDuration
+                totalCpuDuration,
+                pr.info().user().orElse("Unknown")
             )
+
         }.collect(Collectors.toList())
             .groupBy { it.name }
-            .map { appInstance ->
-                val appName = appInstance.key
-                val appStart = Clock.System.now()
-                val appUser = "To be done"
-                val processInstances = appInstance.value
+            .map { appInstances ->
+                val appName = appInstances.key
+                val appStart = appInstances.value.minOf { it.startTime }
+                val appUser =
+                    appInstances.value.groupBy { it.user }.keys.filter {
+                        it != "Unknown"
+                    }.joinToString(",")
+
+                val processInstances = appInstances.value
+
                 App(
                     name = appName,
                     startTime = appStart,

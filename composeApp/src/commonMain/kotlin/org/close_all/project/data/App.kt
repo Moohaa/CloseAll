@@ -18,5 +18,6 @@ data class AppInstance(
     val pid: Long,
     val cmd: String,
     val startTime: Instant,
-    val totalCpuDuration: Duration
+    val totalCpuDuration: Duration,
+    val user: String
 )

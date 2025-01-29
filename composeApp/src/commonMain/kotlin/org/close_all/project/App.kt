@@ -99,8 +99,8 @@ class AppState(private val appManager: AppManager) {
                 if (targetApp.checked) checkedCount++
                 targetApp
             }
-        if (checkedCount < 2) this._allCheck.value = false
-        if (checkedCount >= 2) this._allCheck.value = null
+        if (checkedCount == 0) this._allCheck.value = false
+        if (checkedCount >= 1) this._allCheck.value = null
     }
 
     fun appAllCheckBoxChange() {
@@ -138,5 +138,5 @@ class AppState(private val appManager: AppManager) {
         }
     }
 
-
 }
+
