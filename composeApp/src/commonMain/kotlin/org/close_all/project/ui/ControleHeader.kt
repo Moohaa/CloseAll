@@ -1,8 +1,10 @@
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.TriStateCheckbox
@@ -18,12 +20,13 @@ import org.close_all.project.ui.vectors.Refresh
 @Composable
 fun ControlHeader(
     checked: Boolean?,
+    loading: Boolean,
     onCheckboxChange: () -> Unit,
     shutDownClicked: () -> Unit,
     loadClicked: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().size(45.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -50,7 +53,7 @@ fun ControlHeader(
                 }
             )
 
-            if (checked == true || checked == null) {
+            if ((checked == true || checked == null) && !loading) {
                 IconButton(
                     onClick = shutDownClicked,
                 ) {
@@ -62,14 +65,28 @@ fun ControlHeader(
                 }
             }
         }
-        IconButton(
-            onClick = loadClicked,
+        Box(
+            modifier = Modifier.size(45.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Refresh,
-                contentDescription = "refresh",
-                tint = Color.Blue,
-            )
+            if (loading) {
+                CircularProgressIndicator(
+                    color = Color.Blue,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(25.dp),
+                )
+            } else {
+                IconButton(
+                    onClick = loadClicked,
+                ) {
+                    Icon(
+                        imageVector = Refresh,
+                        contentDescription = "refresh",
+                        tint = Color.Blue,
+                        modifier = Modifier.size(25.dp),
+                    )
+                }
+            }
         }
 
 

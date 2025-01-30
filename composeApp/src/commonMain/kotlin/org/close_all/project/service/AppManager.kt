@@ -1,11 +1,12 @@
 package org.close_all.project.service
 
 import org.close_all.project.data.App
+import org.close_all.project.data.Result
 
 interface AppManager {
-    fun getRunningApps(onExit: (apps: List<App>) -> Unit)
-    fun closeApp(app: App, onExit: () -> Unit)
-    fun closeApps(apps: List<App>, onExit: () -> Unit)
+    suspend fun getRunningApps(): Result<List<App>>
+    fun closeApp(app: App): Result<Boolean>
+    fun closeApps(apps: List<App>): Result<Boolean>
 }
 
 
