@@ -11,11 +11,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.close_all.project.data.App
-import kotlin.time.Duration
+import org.close_all.project.utils.TimeFormatUtils
 
 @Composable
 fun appRowItem(
@@ -45,8 +46,10 @@ fun appRowItem(
         )
 
         Text(
-            text = getTimeAgo(app.startTime),
-            modifier = Modifier
+            text = TimeFormatUtils.getTimeAgo(app.startTime),
+            modifier = Modifier.padding(horizontal = 7.dp),
+            fontWeight = FontWeight.Light,
+            fontSize = TextUnit(14f, TextUnitType.Sp)
         )
 
 //        IconButton(
@@ -61,20 +64,3 @@ fun appRowItem(
     }
 }
 
-fun getTimeAgo(startTime: Instant): String {
-    val now = Clock.System.now()
-    val duration = now - startTime
-    return formatDuration(duration)
-}
-
-
-fun formatDuration(duration: Duration): String {
-    return when {
-        duration.inWholeMinutes < 1 -> "${duration.inWholeSeconds}s"
-        duration.inWholeHours < 1 -> "${duration.inWholeMinutes}m"
-        duration.inWholeDays < 1 -> "${duration.inWholeHours}h"
-        duration.inWholeDays < 30 -> "${duration.inWholeDays}d"
-        duration.inWholeDays < 365 -> "${duration.inWholeDays / 30}mo"
-        else -> "${duration.inWholeDays / 365}y"
-    }
-}
