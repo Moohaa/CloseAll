@@ -5,6 +5,7 @@ import org.close_all.project.data.App
 import org.close_all.project.data.AppInstance
 import org.close_all.project.data.Result
 import java.util.Optional
+import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import kotlin.time.Duration
 
@@ -68,29 +69,43 @@ class DesktopAppManager : AppManager {
     }
 
     override fun closeApp(app: App): Result<Boolean> {
-        var allInstanceClosed = true
-        app.processInstances.forEach { ins ->
-            val insProcessHandleOpt = ProcessHandle.of(ins.pid)
-            if (insProcessHandleOpt.isPresent) {
-                val insProcessHandle = insProcessHandleOpt.get()
-                val destroyed = insProcessHandle.destroy()
-                allInstanceClosed = destroyed && allInstanceClosed
+        try {
+            val appInstancesProcesses = app.processInstances.associate { ins ->
+                println("${app.name}  ${ins.cmd}. ${ins.user}")
+                val insProcessHandleOpt = ProcessHandle.of(ins.pid)
+                var destroyed = false
+                if (insProcessHandleOpt.isPresent) {
+                    val insProcessHandle = insProcessHandleOpt.get()
+                    destroyed = insProcessHandle.destroy()
+                }
+                insProcessHandleOpt to destroyed
             }
+
+
+            // wait for all instances to close
+            appInstancesProcesses.forEach {
+                it.key.get().onExit().orTimeout(2, TimeUnit.SECONDS).get()
+            }
+
+            return Result.Success(true)
+
+        } catch (exception: Exception) {
+            return Result.Failure(Exception("Couldn't close ${app.name} app"))
         }
-        if (allInstanceClosed) return Result.Success(true)
-        return Result.Failure(Exception("Couldn't close ${app.name} app"))
+
     }
 
-    override fun closeApps(apps: List<App>): Result<Boolean> {
+    override suspend fun closeApps(apps: List<App>): Result<Boolean> {
         val appsDidntClose = ArrayList<String>()
         apps.forEach { app ->
             when (val result = closeApp(app)) {
                 is Result.Failure -> appsDidntClose.add(app.name)
-                is Result.Success -> {}
+                is Result.Success -> {
+                }
             }
         }
         if (appsDidntClose.isEmpty()) return Result.Success(true)
-        return Result.Failure(Exception("Couldn't close ${appsDidntClose.joinToString(",")} apps"))
+        return Result.Failure(Exception("⚠\uFE0F Couldn't close ${appsDidntClose.joinToString(",")}"))
 
     }
 
