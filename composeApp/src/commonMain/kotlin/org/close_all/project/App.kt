@@ -47,7 +47,7 @@ fun App(
 
         Box(
             Modifier.fillMaxWidth().padding(5.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.TopCenter
         ) {
             Column {
                 ControlHeader(

@@ -15,52 +15,54 @@ class DesktopAppManager : AppManager {
 
     override suspend fun getRunningApps(): Result<List<App>> {
         try {
-            val appsMap = ProcessHandle.allProcesses().filter { pr ->
-                pr.info().command().orElse("Unknown").contains("/${APPS_PATH}/")
-            }.filter { pr ->
-                pr.parent().get().pid() == 1L
-            }.map { pr ->
-                val name = getAppName(pr.info().command())
-                val startInstance = Instant.fromEpochMilliseconds(
-                    pr.info().startInstant().orElse(
-                        java.time.Instant.now()
-                    ).toEpochMilli()
-                )
+            val appsMap =
+                ProcessHandle.of(1L).get().descendants()
+                    .filter { pr ->
+                        pr.info().commandLine().orElse("Unknown").contains("/${APPS_PATH}/")
+                    }.map { pr ->
+                        val name = getAppName(pr.info().commandLine())
+                        val startInstance = Instant.fromEpochMilliseconds(
+                            pr.info().startInstant().orElse(
+                                java.time.Instant.now()
+                            ).toEpochMilli()
+                        )
 
-                val totalCpuDuration = Duration.parseIsoString(
-                    pr.info().totalCpuDuration().orElse(
-                        java.time.Duration.ofSeconds(1)
-                    ).toString()
-                )
-                AppInstance(
-                    name,
-                    pr.pid(),
-                    pr.info().command().orElse("NA"),
-                    startInstance,
-                    totalCpuDuration,
-                    pr.info().user().orElse("Unknown")
-                )
+                        val totalCpuDuration = Duration.parseIsoString(
+                            pr.info().totalCpuDuration().orElse(
+                                java.time.Duration.ofSeconds(1)
+                            ).toString()
+                        )
+                        AppInstance(
+                            name,
+                            pr.pid(),
+                            pr.info().commandLine().orElse("NA"),
+                            startInstance,
+                            totalCpuDuration,
+                            pr.info().user().orElse("Unknown")
+                        )
 
-            }.collect(Collectors.toList())
-                .groupBy { it.name }
-                .map { appInstances ->
-                    val appName = appInstances.key
-                    val appStart = appInstances.value.minOf { it.startTime }
-                    val appUser =
-                        appInstances.value.groupBy { it.user }.keys.filter {
-                            it != "Unknown"
-                        }.joinToString(",")
+                    }.collect(Collectors.toList())
+                    .groupBy { it.name }
+                    .map { appInstances ->
+                        val appName = appInstances.key
+                        val appStart = appInstances.value.minOf { it.startTime }
+                        val appUser =
+                            appInstances.value.groupBy { it.user }.keys.filter {
+                                it != "Unknown"
+                            }.joinToString(",")
 
-                    val processInstances = appInstances.value
+                        val processInstances = appInstances.value
 
-                    App(
-                        name = appName,
-                        startTime = appStart,
-                        user = appUser,
-                        processInstances = processInstances,
-                        totalCpuDurations = Duration.ZERO
-                    )
-                }
+                        App(
+                            name = appName,
+                            startTime = appStart,
+                            user = appUser,
+                            processInstances = processInstances,
+                            totalCpuDurations = Duration.ZERO
+                        )
+                    }.sortedByDescending {
+                        it.startTime
+                    }
             return Result.Success(appsMap)
         } catch (exception: Exception) {
             println(exception)
@@ -71,7 +73,6 @@ class DesktopAppManager : AppManager {
     override fun closeApp(app: App): Result<Boolean> {
         try {
             val appInstancesProcesses = app.processInstances.associate { ins ->
-                println("${app.name}  ${ins.cmd}. ${ins.user}")
                 val insProcessHandleOpt = ProcessHandle.of(ins.pid)
                 var destroyed = false
                 if (insProcessHandleOpt.isPresent) {
@@ -110,13 +111,18 @@ class DesktopAppManager : AppManager {
     }
 
     private fun getAppName(cmd: Optional<String>): String {
-        // the name of the app came directly after the /Applications
+        // the name of the app came directly after the /Applications and before .app/Contents/
         // ex /System/Applications/Mail.app/Contents/MacOS/Mail ,/Applications/Zed.app/Contents/MacOS/zed,
+        // ,/Applications/UTILITIES/terminal.app/Contents/MacOS/terminal,
         try {
-            val pathItems = cmd.orElse("/non/").split('/')
+            val listName = cmd.orElse("NA").substringAfter("/Applications/")
+                .substringBefore(".app/Contents").split('/')
 
-            val appsInd = pathItems.indexOf(APPS_PATH)
-            return pathItems.get(index = appsInd + 1).split('.').get(0)
+            return when (listName.size) {
+                0 -> "NA"
+                1 -> listName.get(0)
+                else -> listName.get(1)
+            }
 
         } catch (e: Exception) {
             return ""
