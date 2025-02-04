@@ -1,6 +1,7 @@
 package org.close_all.project
 
 import ControlHeader
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.compose.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,17 +41,20 @@ fun App(
 ) {
     val appState = AppState(appManager)
 
-    MaterialTheme {
+
+    AppTheme {
         val apps = appState.apps.collectAsState()
         val loading = appState.loading.collectAsState()
         val allCheck = appState.allCheck.collectAsState()
         val message = appState.message.collectAsState()
 
         Box(
-            Modifier.fillMaxWidth().padding(5.dp),
+            Modifier.fillMaxWidth().background(MaterialTheme.colors.surface).padding(5.dp),
             contentAlignment = Alignment.TopCenter
         ) {
-            Column {
+            Column(
+                Modifier.fillMaxWidth().background(MaterialTheme.colors.background)
+            ) {
                 ControlHeader(
                     checked = allCheck.value,
                     loading = loading.value,
@@ -84,7 +89,8 @@ fun App(
                 }
             }
             Box(
-                modifier = Modifier.fillMaxSize().padding(vertical = 25.dp),
+                modifier = Modifier.fillMaxSize()
+                    .padding(vertical = 25.dp),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 if (message.value != null) MessageBox(message = message.value!!)

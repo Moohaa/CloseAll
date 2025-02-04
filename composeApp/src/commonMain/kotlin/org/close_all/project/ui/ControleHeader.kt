@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TriStateCheckbox
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import org.close_all.project.ui.vectors.Cancel
@@ -53,39 +55,55 @@ fun ControlHeader(
                 }
             )
 
-            if ((checked == true || checked == null) && !loading) {
-                IconButton(
-                    onClick = shutDownClicked,
-                ) {
-                    Icon(
-                        imageVector = Cancel,
-                        contentDescription = "Shutdown",
-                        tint = Color.Red,
+
+            Box(
+                modifier = Modifier.size(45.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if ((checked == true || checked == null) && !loading) {
+                    IconButton(
+                        onClick = shutDownClicked,
+                    ) {
+                        Icon(
+                            imageVector = Cancel,
+                            contentDescription = "Shutdown",
+                            tint = MaterialTheme.colors.error,
+                        )
+                    }
+                } else if (loading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colors.primary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(25.dp),
                     )
+                } else {
+                    IconButton(
+                        onClick = loadClicked,
+                    ) {
+                        Icon(
+                            imageVector = Refresh,
+                            contentDescription = "refresh",
+                            tint = MaterialTheme.colors.primary,
+                            modifier = Modifier.size(25.dp),
+                        )
+                    }
                 }
             }
+
         }
         Box(
             modifier = Modifier.size(45.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    color = Color.Blue,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(25.dp),
+            IconButton(
+
+                onClick = { }
+            ) {
+                Icon(
+                    tint = MaterialTheme.colors.onBackground,
+                    imageVector = Icons.Default.Settings, // Use the "more options" icon
+                    contentDescription = "Options" // Accessibility description
                 )
-            } else {
-                IconButton(
-                    onClick = loadClicked,
-                ) {
-                    Icon(
-                        imageVector = Refresh,
-                        contentDescription = "refresh",
-                        tint = Color.Blue,
-                        modifier = Modifier.size(25.dp),
-                    )
-                }
             }
         }
 
