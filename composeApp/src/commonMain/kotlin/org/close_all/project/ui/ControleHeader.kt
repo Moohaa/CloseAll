@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import org.close_all.project.ui.vectors.Cancel
+import org.close_all.project.ui.vectors.Close
 import org.close_all.project.ui.vectors.Refresh
 
 @Composable
@@ -25,7 +25,9 @@ fun ControlHeader(
     loading: Boolean,
     onCheckboxChange: () -> Unit,
     shutDownClicked: () -> Unit,
-    loadClicked: () -> Unit
+    loadClicked: () -> Unit,
+    hideClicked: () -> Unit,
+    settingsClicked: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().size(45.dp),
@@ -55,49 +57,70 @@ fun ControlHeader(
                 }
             )
 
-
-            Box(
-                modifier = Modifier.size(45.dp),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.size(95.dp),
+                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if ((checked == true || checked == null) && !loading) {
-                    IconButton(
-                        onClick = shutDownClicked,
-                    ) {
-                        Icon(
-                            imageVector = Cancel,
-                            contentDescription = "Shutdown",
-                            tint = MaterialTheme.colors.error,
-                        )
-                    }
-                } else if (loading) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colors.primary,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(25.dp),
-                    )
-                } else {
-                    IconButton(
-                        onClick = loadClicked,
-                    ) {
-                        Icon(
-                            imageVector = Refresh,
-                            contentDescription = "refresh",
-                            tint = MaterialTheme.colors.primary,
+                Box(
+                    modifier = Modifier.size(45.dp),
+                    contentAlignment = Alignment.Center
+
+                ) {
+                    if ((checked == true || checked == null) && !loading) {
+                        IconButton(
+                            onClick = shutDownClicked,
+                        ) {
+                            Icon(
+                                imageVector = Close,
+                                contentDescription = "Shutdown",
+                                tint = MaterialTheme.colors.error,
+                            )
+                        }
+                    } else if (loading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colors.primary,
+                            strokeWidth = 2.dp,
                             modifier = Modifier.size(25.dp),
                         )
+                    } else {
+                        IconButton(
+                            onClick = loadClicked,
+                        ) {
+                            Icon(
+                                imageVector = Refresh,
+                                contentDescription = "refresh",
+                                tint = MaterialTheme.colors.primary,
+                                modifier = Modifier.size(25.dp),
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier.size(45.dp)
+                ) {
+                    if ((checked == true || checked == null) && !loading) {
+                        IconButton(
+                            onClick = hideClicked,
+                        ) {
+                            Icon(
+                                imageVector = EyeSlash,
+                                contentDescription = "hide",
+                                tint = MaterialTheme.colors.primary,
+                            )
+                        }
                     }
                 }
             }
-
         }
         Box(
             modifier = Modifier.size(45.dp),
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-
-                onClick = { }
+                onClick = {
+                    settingsClicked()
+                }
             ) {
                 Icon(
                     tint = MaterialTheme.colors.onBackground,

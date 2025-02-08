@@ -16,8 +16,8 @@ val Close: ImageVector
         }
         _Close = ImageVector.Builder(
             name = "Close",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
+            defaultWidth = 20.dp,
+            defaultHeight = 20.dp,
             viewportWidth = 960f,
             viewportHeight = 960f
         ).apply {

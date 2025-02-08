@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import kotlin.time.Duration
 
+
 class DesktopAppManager : AppManager {
 
     private val APPS_PATH = "Applications"
@@ -53,6 +54,7 @@ class DesktopAppManager : AppManager {
 
                         val processInstances = appInstances.value
 
+
                         App(
                             name = appName,
                             startTime = appStart,
@@ -60,7 +62,8 @@ class DesktopAppManager : AppManager {
                             processInstances = processInstances,
                             totalCpuDurations = Duration.ZERO
                         )
-                    }.sortedByDescending {
+                    }
+                    .sortedByDescending {
                         it.startTime
                     }
             return Result.Success(appsMap)
@@ -85,7 +88,7 @@ class DesktopAppManager : AppManager {
 
             // wait for all instances to close
             appInstancesProcesses.forEach {
-                it.key.get().onExit().orTimeout(2, TimeUnit.SECONDS).get()
+                it.key.get().onExit().orTimeout(1, TimeUnit.SECONDS).get()
             }
 
             return Result.Success(true)
@@ -111,7 +114,7 @@ class DesktopAppManager : AppManager {
     }
 
     private fun getAppName(cmd: Optional<String>): String {
-        // the name of the app came directly after the /Applications and before .app/Contents/
+        // the name of the app listed directly after the /Applications and before .app/Contents/
         // ex /System/Applications/Mail.app/Contents/MacOS/Mail ,/Applications/Zed.app/Contents/MacOS/zed,
         // ,/Applications/UTILITIES/terminal.app/Contents/MacOS/terminal,
         try {
