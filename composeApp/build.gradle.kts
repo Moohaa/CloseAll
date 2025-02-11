@@ -47,9 +47,26 @@ compose.desktop {
         mainClass = "org.close_all.project.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.close_all.project"
+            targetFormats(TargetFormat.Dmg)
+            packageName = "closeAll"
             packageVersion = "1.0.0"
+            macOS {
+                bundleID = "com.closeAll.mac"
+                appCategory = "public.app-category.utilities"
+                infoPlist {
+                    dockName = "CloseAll"
+                    extraKeysRawXml = """
+                        <key>LSUIElement</key>
+                        <string>true</string>
+                    """
+                }
+                jvmArgs("-Xms20m")
+                jvmArgs("-Xmx30m")
+                jvmArgs("-Dapple.awt.enableTemplateImages=true")
+                jvmArgs("-Dmac.bundleID=$bundleID")
+            }
         }
     }
 }
+
+
