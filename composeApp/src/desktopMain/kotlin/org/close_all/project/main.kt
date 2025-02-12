@@ -123,7 +123,9 @@ fun main() = application {
                 window.removeMouseListener(listener)
             }
         }
-        App(appManager = DesktopAppManager())
+        App(
+            appManager = DesktopAppManager()
+        )
     }
 
 

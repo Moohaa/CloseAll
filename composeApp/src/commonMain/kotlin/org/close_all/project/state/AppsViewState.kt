@@ -61,7 +61,7 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
     fun closeCheckedApps() {
         _loading.value = true
         val appToClose = this.apps.value.filter {
-            it.checked
+            it.checked && !it.hidden
         }
         viewModelScope.launch {
             val result = withContext(Dispatchers.Default) {

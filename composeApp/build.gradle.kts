@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -32,6 +34,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
 
         }
         desktopMain.dependencies {
@@ -68,5 +72,15 @@ compose.desktop {
         }
     }
 }
+
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+dependencies {
+    ksp(libs.room.compiler)
+}
+
 
 
