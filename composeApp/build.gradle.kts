@@ -53,6 +53,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg)
             packageName = "closeAll"
+
             packageVersion = "1.0.0"
             macOS {
                 bundleID = "com.closeAll.mac"
