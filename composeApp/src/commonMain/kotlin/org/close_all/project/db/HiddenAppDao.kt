@@ -4,14 +4,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 
 
 @Dao
 interface HiddenAppDao {
 
-    @Upsert
-    suspend fun upsert(person: HiddenApp)
 
     @Query("Delete  FROM HiddenApp where name=:appName")
     suspend fun delete(appName: String)
@@ -24,7 +21,10 @@ interface HiddenAppDao {
     suspend fun _deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(persons: List<HiddenApp>)
+    suspend fun insertAll(hiddenApps: List<HiddenApp>)
+
+    @Insert(onConflict = OnConflictStrategy.NONE)
+    suspend fun insert(hiddenApp: HiddenApp)
 
 
     suspend fun getAllHiddenApps(): List<String> {

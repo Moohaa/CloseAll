@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.io.FileReader
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,6 +9,16 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
+
+
+val appProperties = Properties()
+appProperties.load(
+    FileReader(
+        project.projectDir.toPath()
+            .resolve("src/commonMain/resources/app.properties")
+            .toFile(),
+    ),
+)
 
 kotlin {
     listOf(
@@ -52,7 +64,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg)
-            packageName = "closeAll"
+            packageName = appProperties.getProperty("app.name")
 
             packageVersion = "1.0.0"
             macOS {

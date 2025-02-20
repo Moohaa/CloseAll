@@ -4,6 +4,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.close_all.project.AppData
+import org.close_all.project.db.HiddenApp
 import org.close_all.project.db.getDb
 
 class AppState {
@@ -18,9 +20,15 @@ class AppState {
         private var _hiddenApps = MutableStateFlow(mutableSetOf<String>())
         val hiddenApps = _hiddenApps.asStateFlow()
 
+        private val db = getDb().hiddenAppDao()
+
         init {
+
             GlobalScope.launch {
-                val data = getDb().hiddenAppDao().getAllHiddenApps()
+                // by default the closeAll app is hidden
+                db.insert(HiddenApp(AppData.getAppName()))
+
+                val data = db.getAllHiddenApps()
                 _hiddenApps.value = data.toMutableSet()
             }
         }
