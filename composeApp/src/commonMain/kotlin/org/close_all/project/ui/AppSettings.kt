@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
@@ -19,8 +20,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,23 +35,34 @@ import org.close_all.project.AppData
 import org.close_all.project.state.AppState
 import org.close_all.project.ui.shared.Divider
 import org.close_all.project.ui.vectors.Eye
+import org.close_all.project.ui.vectors.StopCircle
+import org.close_all.project.ui.vectors.back
 
 
 @Composable
 fun AppSettings(
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    shutDown: () -> Unit
 ) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween
 
         ) {
             IconButton(onClick = onClose) {
                 Icon(
-                    Icons.Default.Close,
+                    imageVector = back,
                     tint = MaterialTheme.colors.onBackground,
-                    contentDescription = "Close"
+                    contentDescription = "back to the previous screen."
+                )
+            }
+            IconButton(onClick = shutDown) {
+                Icon(
+                    imageVector = StopCircle,
+                    tint = MaterialTheme.colors.error,
+                    contentDescription = "close the app.",
+                    modifier = Modifier.padding(horizontal = 10.dp).size(32.dp)
                 )
             }
         }

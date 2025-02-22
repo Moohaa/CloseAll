@@ -24,7 +24,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App(
-    appManager: AppManager
+    appManager: AppManager,
+    shutDown: () -> Unit
 ) {
 
     val isDarkMode = AppState.INSTANCE.is_darkMode.collectAsState()
@@ -49,6 +50,7 @@ fun App(
                 )
             } else {
                 AppSettings(
+                    shutDown = shutDown,
                     onClose = {
                         openSettings = false
                     }

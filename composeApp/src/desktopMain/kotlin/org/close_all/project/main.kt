@@ -124,7 +124,10 @@ fun main() = application {
             }
         }
         App(
-            appManager = DesktopAppManager()
+            appManager = DesktopAppManager(),
+            shutDown = {
+                exitApplication()
+            }
         )
     }
 
