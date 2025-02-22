@@ -5,7 +5,7 @@ import org.close_all.project.data.App
 import org.close_all.project.data.Result
 import org.close_all.project.service.AppManager
 
-fun MainViewController() = ComposeUIViewController { App(Manager()) }
+fun MainViewController() = ComposeUIViewController { App(Manager(), {}) }
 
 class Manager : AppManager {
     override suspend fun getRunningApps(): Result<List<App>> {

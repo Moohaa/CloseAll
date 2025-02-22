@@ -17,13 +17,21 @@ import androidx.compose.ui.window.rememberWindowState
 import closeall.composeapp.generated.resources.Res
 import closeall.composeapp.generated.resources.compose_multiplatform
 import org.close_all.project.platform.CloseItTray
+import org.close_all.project.platform.ThisAppInstanceLock
 import org.close_all.project.service.DesktopAppManager
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Toolkit
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 
-fun main() = application {
+
+fun main() {
+    val can = ThisAppInstanceLock.requireFileLock()
+    if (can) application()
+}
+
+fun application() = application {
+
     val screenSize = Toolkit.getDefaultToolkit().screenSize
 
     val winWith = 400.dp
@@ -61,15 +69,12 @@ fun main() = application {
         }
 
         override fun mouseReleased(e: MouseEvent?) {
-            println("clicked")
         }
 
         override fun mouseEntered(e: MouseEvent?) {
-            println("clicked")
         }
 
         override fun mouseExited(e: MouseEvent?) {
-            println("clicked")
         }
     }
 
@@ -102,9 +107,6 @@ fun main() = application {
                 }
 
                 override fun mousePressed(e: MouseEvent?) {
-                    if (e != null) {
-                        println(e.locationOnScreen.toString())
-                    }
                 }
 
                 override fun mouseReleased(e: MouseEvent?) {
@@ -126,13 +128,14 @@ fun main() = application {
         App(
             appManager = DesktopAppManager(),
             shutDown = {
+                ThisAppInstanceLock.releaseFileLock()
                 exitApplication()
             }
         )
     }
-
-
 }
+
+
 
 
 
