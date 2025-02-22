@@ -27,7 +27,7 @@ fun App(
     appManager: AppManager
 ) {
 
-    val isDarkMode = AppState.is_darkMode.collectAsState()
+    val isDarkMode = AppState.INSTANCE.is_darkMode.collectAsState()
 
     AppTheme(
         darkTheme = isDarkMode.value

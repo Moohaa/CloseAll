@@ -29,8 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.close_all.project.AppData
 import org.close_all.project.state.AppState
 import org.close_all.project.ui.shared.Divider
 import org.close_all.project.ui.vectors.Eye
@@ -69,9 +71,9 @@ fun AppSettings(
                     modifier = Modifier.weight(1f)
                 )
                 Switch(
-                    checked = AppState.is_darkMode.value,
+                    checked = AppState.INSTANCE.is_darkMode.value,
                     onCheckedChange = {
-                        AppState.changeMode()
+                        AppState.INSTANCE.changeMode()
                     }
                 )
             }
@@ -93,7 +95,7 @@ fun AppSettings(
             Column(modifier = Modifier.fillMaxWidth()) {
 
                 var showHiddenApps by remember { mutableStateOf(false) }
-                val hiddenApps by AppState.hiddenApps.collectAsState()
+                val hiddenApps by AppState.INSTANCE.hiddenApps.collectAsState()
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -125,20 +127,20 @@ fun AppSettings(
                         Column(
                             modifier = Modifier.verticalScroll(scrollState)
                                 .padding(vertical = 5.dp)
-
-
                         ) {
                             hiddenApps.forEach {
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth().height(35.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(
+                                        enabled = it != AppData.getAppName(),
                                         modifier = Modifier.padding(
                                             0.dp
                                         ),
                                         onClick = {
-                                            AppState.unHideApp(it)
+                                            AppState.INSTANCE.unHideApp(it)
                                         },
                                     ) {
                                         Icon(
@@ -147,7 +149,7 @@ fun AppSettings(
                                             ),
                                             imageVector = Eye,
                                             contentDescription = "Show",
-                                            tint = MaterialTheme.colors.onBackground,
+                                            tint = if (it != AppData.getAppName()) MaterialTheme.colors.onBackground else Color.Gray,
                                         )
                                     }
                                     Text(
@@ -158,7 +160,6 @@ fun AppSettings(
                                 }
 
                             }
-
                         }
                         VerticalScrollbar(
                             adapter = rememberScrollbarAdapter(scrollState),
@@ -168,9 +169,6 @@ fun AppSettings(
                     }
                 }
             }
-
         }
     }
-
-
 }

@@ -45,7 +45,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           token: ${{ secrets.REPO_TOKEN }}
-          files: /Users/runner/work/CloseAll/CloseAll/composeApp/build/compose/binaries/main/dmg/closeAll-1.0.0.dmg
+          files: /Users/runner/work/CloseAll/CloseAll/composeApp/build/compose/binaries/main/dmg/
         
 
     

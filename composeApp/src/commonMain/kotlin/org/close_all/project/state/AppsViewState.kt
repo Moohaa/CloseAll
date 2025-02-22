@@ -3,6 +3,7 @@ package org.close_all.project.state
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,7 +78,6 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
                     setMessage(Message(result.exception.message!!, MessageType.ERROR)) {
                         reload()
                     }
-                    println("${result.exception.message}")
                 }
             }
         }
@@ -88,12 +88,14 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
             if (it.checked) it.hidden = true
             it
         }
+        val appToHide = _apps.value.filter { it.hidden }.map { it.name }.toSet()
 
-        AppState.setHiddenApps(_apps.value.filter {
-            it.hidden
-        }.map { it.name }.toSet())
-
-        reload()
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                AppState.INSTANCE.setHiddenApps(appToHide)
+            }
+            reload()
+        }
     }
 
 
@@ -112,7 +114,7 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
                     _loading.value = false
                     _allCheck.value = false
                     _apps.value = result.data.map {
-                        if (AppState.getHiddenApps().contains(it.name)) {
+                        if (AppState.INSTANCE.getHiddenApps().contains(it.name)) {
                             it.hidden = true
                         }
                         it
@@ -133,11 +135,9 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
     private fun setMessage(message: Message, callBack: () -> Unit) {
         viewModelScope.launch {
             _message.value = message
-            println(_message.value!!.message + " " + _message.value!!.type)
             withContext(Dispatchers.Default) {
                 delay(3000)
             }
-            println(_message.value!!.message + " :" + _message.value!!.type)
             _message.value = null
             callBack()
         }
