@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import org.close_all.project.AppData
 import org.close_all.project.state.AppState
 import org.close_all.project.ui.shared.Divider
+import org.close_all.project.ui.vectors.Exit
 import org.close_all.project.ui.vectors.Eye
-import org.close_all.project.ui.vectors.StopCircle
 import org.close_all.project.ui.vectors.back
 
 
@@ -47,7 +47,7 @@ fun AppSettings(
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Start
 
         ) {
             IconButton(onClick = onClose) {
@@ -57,14 +57,7 @@ fun AppSettings(
                     contentDescription = "back to the previous screen."
                 )
             }
-            IconButton(onClick = shutDown) {
-                Icon(
-                    imageVector = StopCircle,
-                    tint = MaterialTheme.colors.error,
-                    contentDescription = "close the app.",
-                    modifier = Modifier.padding(horizontal = 10.dp).size(32.dp)
-                )
-            }
+
         }
         Divider()
 
@@ -178,6 +171,38 @@ fun AppSettings(
                         )
                     }
                 }
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = shutDown,
+                        modifier = Modifier
+                            .background(MaterialTheme.colors.error).height(30.dp)
+                            .fillMaxWidth(0.99f)
+                            .padding(
+                                horizontal = 20.dp
+                            )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Exit,
+                                tint = MaterialTheme.colors.onError,
+                                contentDescription = "close the app.",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = "Exit",
+                                color = MaterialTheme.colors.onError
+                            )
+                        }
+                    }
+                }
+
             }
         }
     }
