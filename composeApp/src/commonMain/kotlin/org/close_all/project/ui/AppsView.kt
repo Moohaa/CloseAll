@@ -59,22 +59,18 @@ fun AppsView(
 
             LazyColumn {
                 items(apps.value) { app ->
-                    if (!app.hidden) {
-                        appRowItem(
-                            app = app,
-                            onCheckboxChange = {
-                                appState.appCheckBoxChange(app.name)
-                            },
-                            shutDownClicked = {
-                                //appState.closeApp(app)
-                            },
-                            onOptionsClick = {
-                            }
-                        )
-                        Divider()
-
-                    }
-
+                    appRowItem(
+                        app = app,
+                        onCheckboxChange = {
+                            appState.appCheckBoxChange(app.name)
+                        },
+                        shutDownClicked = {
+                            //appState.closeApp(app)
+                        },
+                        onOptionsClick = {
+                        }
+                    )
+                    Divider()
                 }
             }
         }

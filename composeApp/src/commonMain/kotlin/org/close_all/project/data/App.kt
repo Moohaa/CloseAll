@@ -10,8 +10,7 @@ data class App(
     val user: String,
     val processInstances: List<AppInstance>,
     val totalCpuDurations: Duration,
-    var checked: Boolean = false,
-    var hidden: Boolean = false
+    var checked: Boolean = false
 )
 
 data class AppInstance(

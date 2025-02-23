@@ -47,8 +47,12 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
                 if (targetApp.checked) checkedCount++
                 targetApp
             }
-        if (checkedCount == 0) this._allCheck.value = false
-        if (checkedCount >= 1) this._allCheck.value = null
+
+        this._allCheck.value = when (checkedCount) {
+            0 -> false
+            this._apps.value.size -> true
+            else -> null
+        }
     }
 
     fun appAllCheckBoxChange() {
@@ -62,7 +66,7 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
     fun closeCheckedApps() {
         _loading.value = true
         val appToClose = this.apps.value.filter {
-            it.checked && !it.hidden
+            it.checked
         }
         viewModelScope.launch {
             val result = withContext(Dispatchers.Default) {
@@ -84,11 +88,7 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
     }
 
     fun hideCheckedApps() {
-        _apps.value = this.apps.value.map {
-            if (it.checked) it.hidden = true
-            it
-        }
-        val appToHide = _apps.value.filter { it.hidden }.map { it.name }.toSet()
+        val appToHide = _apps.value.filter { it.checked }.map { it.name }.toSet()
 
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
@@ -113,11 +113,8 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
                 is Result.Success -> {
                     _loading.value = false
                     _allCheck.value = false
-                    _apps.value = result.data.map {
-                        if (AppState.INSTANCE.getHiddenApps().contains(it.name)) {
-                            it.hidden = true
-                        }
-                        it
+                    _apps.value = result.data.filter {
+                        !AppState.INSTANCE.getHiddenApps().contains(it.name)
                     }
                 }
 
@@ -142,6 +139,4 @@ class AppsViewState(private val appManager: AppManager) : ViewModel() {
             callBack()
         }
     }
-
-
 }
