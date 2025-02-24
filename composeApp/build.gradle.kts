@@ -70,6 +70,9 @@ compose.desktop {
             macOS {
                 bundleID = "com.closeAll.mac"
                 appCategory = "public.app-category.utilities"
+
+                iconFile.set(project.file("src/commonMain/composeResources/drawable/closeAll_icon.icns"))
+
                 infoPlist {
                     dockName = "CloseAll"
                     extraKeysRawXml = """

@@ -15,6 +15,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberTrayState
 import androidx.compose.ui.window.rememberWindowState
 import closeall.composeapp.generated.resources.Res
+import closeall.composeapp.generated.resources.closeAll_svg
 import closeall.composeapp.generated.resources.compose_multiplatform
 import org.close_all.project.platform.CloseItTray
 import org.close_all.project.platform.ThisAppInstanceLock
@@ -38,7 +39,7 @@ fun application() = application {
     val winHeight = 500.dp
 
     val trayState = rememberTrayState()
-    val trayIcon = painterResource(Res.drawable.compose_multiplatform)
+    val trayIcon = painterResource(Res.drawable.closeAll_svg)
 
     var flag by remember { mutableStateOf(false) }
     var showTray by remember { mutableStateOf(false) }
