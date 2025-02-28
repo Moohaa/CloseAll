@@ -18,7 +18,7 @@ import closeall.composeapp.generated.resources.Res
 import closeall.composeapp.generated.resources.closeAll_svg
 import closeall.composeapp.generated.resources.compose_multiplatform
 import org.close_all.project.platform.CloseItTray
-import org.close_all.project.platform.ThisAppInstanceLock
+import org.close_all.project.platform.ThisAppInstance
 import org.close_all.project.service.DesktopAppManager
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Toolkit
@@ -27,8 +27,8 @@ import java.awt.event.MouseListener
 
 
 fun main() {
-    val can = ThisAppInstanceLock.requireFileLock()
-    if (can) application()
+    val anOtherProcessIsRunning = ThisAppInstance.isAnotherInstanceRunning()
+    if (!anOtherProcessIsRunning) application()
 }
 
 fun application() = application {
@@ -129,7 +129,6 @@ fun application() = application {
         App(
             appManager = DesktopAppManager(),
             shutDown = {
-                ThisAppInstanceLock.releaseFileLock()
                 exitApplication()
             }
         )

@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.util.Properties
 
 
-class PropertiesLoaderImpl : PropertiesLoader {
+object PropertiesLoaderImpl : PropertiesLoader {
     override fun loadProperties(): Map<String, String> {
         val properties = Properties()
         val inputStream: InputStream = this::class.java.getResourceAsStream("/app.properties")
