@@ -56,7 +56,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg)
             packageName = appProperties.getProperty("app.name")
 
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
             macOS {
                 bundleID = "com.closeAll.mac"
                 appCategory = "public.app-category.utilities"
