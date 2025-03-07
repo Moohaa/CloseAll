@@ -1,6 +1,7 @@
 package org.close_all.project.service
 
 import kotlinx.datetime.Instant
+import org.close_all.project.AppData
 import org.close_all.project.data.App
 import org.close_all.project.data.AppInstance
 import org.close_all.project.data.Result
@@ -12,14 +13,13 @@ import kotlin.time.Duration
 
 class DesktopAppManager : AppManager {
 
-    private val APPS_PATH = "Applications"
-
     override suspend fun getRunningApps(): Result<List<App>> {
         try {
             val appsMap =
                 ProcessHandle.of(1L).get().descendants()
                     .filter { pr ->
-                        pr.info().commandLine().orElse("Unknown").contains("/${APPS_PATH}/")
+                        val cmdLine = pr.info().commandLine().orElse("Unknown")
+                        isApplicationCmdLine(cmdLine) || isRelevantCorServiceCmdLine(cmdLine)
                     }.map { pr ->
                         val name = getAppName(pr.info().commandLine())
                         val startInstance = Instant.fromEpochMilliseconds(
@@ -73,6 +73,18 @@ class DesktopAppManager : AppManager {
         }
     }
 
+    private fun isApplicationCmdLine(cmd: String): Boolean {
+        return cmd.contains(
+            regex = Regex(AppData.APPS_PATH_EXP)
+        )
+    }
+
+    private fun isRelevantCorServiceCmdLine(cmd: String): Boolean {
+        return cmd.contains(
+            regex = Regex(AppData.RELAVANT_CORE_SERVICES_EXP)
+        )
+    }
+
     override fun closeApp(app: App): Result<Boolean> {
         try {
             val appInstancesProcesses = app.processInstances.associate { ins ->
@@ -80,7 +92,7 @@ class DesktopAppManager : AppManager {
                 var destroyed = false
                 if (insProcessHandleOpt.isPresent) {
                     val insProcessHandle = insProcessHandleOpt.get()
-                    destroyed = insProcessHandle.destroy()
+                    destroyed = insProcessHandle.destroy() // todo make it configurable
                 }
                 insProcessHandleOpt to destroyed
             }
@@ -113,21 +125,35 @@ class DesktopAppManager : AppManager {
 
     }
 
-    private fun getAppName(cmd: Optional<String>): String {
-        // the name of the app listed directly after the /Applications and before .app/Contents/
-        // ex /System/Applications/Mail.app/Contents/MacOS/Mail ,/Applications/Zed.app/Contents/MacOS/zed,
-        // ,/Applications/UTILITIES/terminal.app/Contents/MacOS/terminal,
+    private fun getAppName(cmdLineOpt: Optional<String>): String {
+        // an application can be in to places
+        //     1. the name of the app listed directly after the /Applications and before .app/Contents/
+        //          ex /System/Applications/Mail.app/Contents/MacOS/Mail ,/Applications/Zed.app/Contents/MacOS/zed,
+        //          ,/Applications/UTILITIES/terminal.app/Contents/MacOS/terminal,
+        //     2. directly after the 'CoreServices'
+        //         ex /System/Library/CoreServices/Finder.app/Contents/MacOS/Finder
         try {
-            val listName = cmd.orElse("NA").substringAfter("/Applications/")
-                .substringBefore(".app/Contents").split('/')
+            val cmdline = cmdLineOpt.orElse("NA")
+            var listName = emptyList<String>()
 
+            if (isApplicationCmdLine(cmdline)) {
+                listName =
+                    cmdline.substringBefore(".app/Contents").substringAfter("/Applications/")
+                        .split('/')
+            }
+
+            if (isRelevantCorServiceCmdLine(cmdline)) {
+                listName =
+                    cmdline.substringBefore(".app/Contents").substringAfter("/CoreServices/")
+                        .split('/')
+            }
             return when (listName.size) {
                 0 -> "NA"
-                1 -> listName.get(0)
-                else -> listName.get(1)
+                else -> listName.last()
             }
 
         } catch (e: Exception) {
+            println(e)
             return ""
         }
 
